@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "BOT_TOKEN": "7914542986:AAHGQNRy8QJRG8lyS7boPah9MmjFiAQr3w0",
+    "DOWNLOAD_PATH": "/tmp/downloads"
+  }
+} 
