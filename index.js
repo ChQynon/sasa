@@ -16,17 +16,9 @@ if (!fs.existsSync(downloadPath)) {
 const token = process.env.BOT_TOKEN || '7914542986:AAHGQNRy8QJRG8lyS7boPah9MmjFiAQr3w0';
 let bot;
 
-// Режим работы бота зависит от окружения
-if (process.env.NODE_ENV === 'production') {
-  // Для Vercel - используем webhook
-  bot = new TelegramBot(token);
-  bot.setWebHook(`${process.env.VERCEL_URL}/api/webhook`);
-  console.log('Бот запущен в режиме webhook');
-} else {
-  // Для локальной разработки - используем long polling
-  bot = new TelegramBot(token, { polling: true });
-  console.log('Бот запущен в режиме polling');
-}
+// Всегда используем режим long polling для простоты
+bot = new TelegramBot(token, { polling: true });
+console.log('Бот запущен в режиме polling');
 
 // Карта для отслеживания загрузок пользователей
 const userDownloads = new Map();
@@ -73,7 +65,7 @@ const URL_PATTERNS = {
   tiktok: /https?:\/\/(www\.)?(tiktok\.com|vm\.tiktok\.com)\/.+/i,
   douyin: /https?:\/\/(www\.)?(douyin\.com|iesdouyin\.com)\/.+/i,
   weibo: /https?:\/\/(www\.)?weibo\.com\/.+/i,
-  rednote: /https?:\/\/(www\.)?(xiaohongshu\.com|xhs\.com)\/.+/i,
+  rednote: /https?:\/\/(www\.)?(xiaohongshu\.com|xhs\.com|xhslink\.com)\/.+/i,
   instagram: /https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/.+/i,
   youtube: /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/i,
   kuaishou: /https?:\/\/(www\.)?(kuaishou\.com|ksh\.com)\/.+/i
@@ -92,6 +84,7 @@ bot.on('message', async (msg) => {
   for (const url of urls) {
     const platform = identifyPlatform(url);
     if (!platform) {
+      console.log(`Неизвестная платформа для URL: ${url}`);
       bot.sendMessage(chatId, `Извините, я не смог определить платформу для этого URL: ${url}`);
       continue;
     }
@@ -108,7 +101,7 @@ bot.on('message', async (msg) => {
 
 // Извлечение URL из текста
 function extractUrls(text) {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urlRegex = /(https?:\/\/[^\s,，。]+)/g;
   return text.match(urlRegex) || [];
 }
 
